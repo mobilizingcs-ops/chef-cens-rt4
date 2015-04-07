@@ -1,0 +1,38 @@
+server {
+  listen 443;
+  ssl on;
+  ssl_certificate /etc/ssl/certs/mobilizingcs.org.crt;
+  ssl_certificate_key /etc/ssl/private/mobilizingcs.org.key;
+  client_body_buffer_size 100m;
+  client_max_body_size 100m;
+
+  location / {
+    rewrite ^ /rt permanent;
+  }
+
+  location /rt {
+    alias /usr/share/request-tracker4/html;
+    location /rt/REST/1.0/NoAuth {
+      allow 127.0.0.1;
+      deny all;
+      include /etc/nginx/fastcgi_params;
+      fastcgi_param SCRIPT_NAME '/rt';
+      fastcgi_pass unix:/var/run/rt4-fcgi.sock;
+    }
+    expires epoch;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_param SCRIPT_NAME '/rt';
+    fastcgi_pass unix:/var/run/rt4-fcgi.sock;
+  }
+
+  # Bypass FastCGI for images
+  location /rt/NoAuth/images {
+    alias /usr/share/request-tracker4/html/NoAuth/images/;
+  }
+}
+
+##REDIRECT ALL HTTP REQUESTS TO HTTPS##
+server {
+  listen 80;
+  return 301 https://$host$request_uri;
+}
