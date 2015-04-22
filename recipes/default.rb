@@ -63,5 +63,5 @@ end
 
 service 'rt4-fcgi' do
   action [:start, :enable]
-  supports :restart => true
+  supports :restart => true, :status => true
 end
