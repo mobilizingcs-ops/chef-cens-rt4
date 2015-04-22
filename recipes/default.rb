@@ -54,3 +54,14 @@ end
 nginx_site 'rt' do
   action :enable
 end
+
+# manage rt4 fcgi service
+cookbook_file "/etc/init.d/rt4-fcgi" do
+  source "rt4-fcgi"
+  mode 0755
+end
+
+service 'rt4-fcgi' do
+  action [:start, :enable]
+  supports :restart => true
+end
